@@ -1,23 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import CoursesList from './CoursesList';
+import Search from './search';
 
-function App() {
+
+const courses = [
+  {
+    id: 1,
+    title: "Modern React",
+    author: "Max Schwar",
+    hours_video: 40.5,
+    number_of_lectures: 490,
+    rating: 4.6,
+    url: "https://fa.wikipedia.org/wiki/%D8%B5%D9%81%D8%AD%D9%87%D9%94_%D8%A7%D8%B5%D9%84%DB%8C",
+  },
+  {
+    id: 2,
+    title: "React Dom",
+    author: "Hamed Khomjani",
+    hours_video: 50,
+    number_of_lectures: 488,
+    rating: 4.9,
+    url: "https://fa.wikipedia.org/wiki/%D8%B5%D9%81%D8%AD%D9%87%D9%94_%D8%A7%D8%B5%D9%84%DB%8C",
+  },
+  {
+    id: 3,
+    title: "Hooks & Redux",
+    author: "Maximilian Schwapenhouer",
+    hours_video: 60,
+    number_of_lectures: 300,
+    rating: 4.3,
+    url: "https://fa.wikipedia.org/wiki/%D8%B5%D9%81%D8%AD%D9%87%D9%94_%D8%A7%D8%B5%D9%84%DB%8C",
+  }
+];
+
+const App = () => {
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearch = event => {
+    setSearchText(event.target.value);
+  }
+
+  const filteredCourses = courses.filter(course => {
+    return course.title.includes(searchText) || course.author.includes(searchText)
+  });
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>List of courses</h1>
+      <hr />
+
+      <Search onSearch={handleSearch}/>
+      <CoursesList courses={filteredCourses} />
     </div>
   );
 }
