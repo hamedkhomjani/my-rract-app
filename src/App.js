@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useReducer } from 'react';
 import CoursesList from './CoursesList';
 import Search from './search';
 
 
-const courses = [
+const courses_data = [
   {
     id: 1,
     title: "Modern React",
@@ -33,7 +33,27 @@ const courses = [
   }
 ];
 
+const coursesReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_COURSES':
+      return action.payload;
+    case 'REMOVE_COURSE':
+      return state.filter(
+        course => action.payload.id !== course.id
+      )
+    default:
+      throw new Error();
+  }
+};
+
 const App = () => {
+
+  const [courses, dispatchCourses] = useReducer(
+    coursesReducer,
+    []
+  );
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [searchText, setSearchText] = useState(
     localStorage.getItem('searchText') || ''
@@ -44,7 +64,33 @@ const App = () => {
     localStorage.setItem('searchText', event.target.value);
   }
 
-  useEffect(()=>{
+  const handleRemoveCourse = course => {
+    dispatchCourses({
+      type: 'REMOVE_COURSE',
+      payload: course
+    });
+  }
+
+  const getCoursesAsync = () =>
+    new Promise(resolve =>
+      setTimeout(
+        () => resolve({ courses: courses_data }),
+        2000
+      )
+    );
+
+  useEffect(() => {
+    setIsLoading(true);
+    getCoursesAsync().then(result => {
+      dispatchCourses({
+        type: 'SET_COURSES',
+        payload: result.courses
+      });
+      setIsLoading(false);
+    })
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('searchText', searchText)
   }, [searchText]);
 
@@ -59,7 +105,13 @@ const App = () => {
       <hr />
 
       <Search value={searchText} onSearch={handleSearch} />
-      <CoursesList courses={filteredCourses} />
+
+      {isLoading ? (
+        <p>Loading Courses ...</p>
+      ) : (
+          <CoursesList courses={filteredCourses} handleRemoveCourse={handleRemoveCourse} />
+        )}
+
     </div>
   );
 }
